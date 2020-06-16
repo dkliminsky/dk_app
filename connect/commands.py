@@ -1,5 +1,5 @@
-from connect import DKConnect
-from utils import bytes_to_uint, int32_to_bytes, int16_to_bytes
+from .connect import DKConnect
+from .utils import bytes_to_uint, int32_to_bytes, int16_to_bytes
 
 
 class DKCommands:

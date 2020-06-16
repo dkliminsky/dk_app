@@ -1,8 +1,8 @@
 import time
 from typing import Union
 
-from interfaces.qt_serial import QTSerial
-from utils import bytes_to_uint
+from .interfaces.qt_serial import QTSerial
+from .utils import bytes_to_uint
 
 
 class DKConnectError(Exception):

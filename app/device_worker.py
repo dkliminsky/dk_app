@@ -47,8 +47,12 @@ class DeviceWorker(QRunnable):
         self.cmd = None
         self.queue = queue.Queue()
         self.ping_elapsed_time = 0
+        self.is_stop = False
 
         self.devices_list = DEVICES_ESSENTIAL_LIST
+
+    def stop(self):
+        self.is_stop = True
 
     def signals(self) -> DeviceWorkerSignals:
         return self._signals
@@ -89,6 +93,9 @@ class DeviceWorker(QRunnable):
             except DKConnectError:
                 self._disconnected()
 
+            if self.is_stop:
+                break
+
     def _run_connected(self):
         # Check that the device is connected
         curr_time = time.time()
@@ -106,6 +113,9 @@ class DeviceWorker(QRunnable):
         while True:
             if self.connect.find_device(self.devices_list):
                 break
+
+            if self.is_stop:
+                return
 
             self.signals().status.emit('Wait for device...')
             time.sleep(1)
@@ -198,6 +208,10 @@ class DeviceWorker(QRunnable):
             while True:
                 percent = next(gen)
                 self.signals().upload_firmware_progress.emit(self.PROGRESS_WRITE_FLASH, percent)
+
+                if self.is_stop:
+                    break
+
         except StopIteration:
             pass
 

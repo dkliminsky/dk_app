@@ -1,6 +1,6 @@
 import os
 
-from commands import DKGeneralCommands
+from .commands import DKGeneralCommands
 from .utils import bytes_to_float, bytes_to_uint, int16_to_bytes, int32_to_bytes, float_to_bytes, int8_to_bytes
 
 
