@@ -13,7 +13,8 @@ class DKCommands:
 
 
 class DKGeneralCommands(DKCommands):
-    COMMAND_ECHO = 1
+    COMMAND_ECHO = 0
+    COMMAND_GET_NAME = 1
     COMMAND_GET_UID = 2
     COMMAND_GET_SOFTWARE_VERSION = 3
     COMMAND_SYSTEM_RESET = 4
@@ -23,6 +24,10 @@ class DKGeneralCommands(DKCommands):
     def ping(self) -> bool:
         data = self.connect.exchange(self.COMMAND_ECHO, b'ping')
         return data == b'ping'
+
+    def get_name(self) -> bytes:
+        data = self.connect.exchange(self.COMMAND_GET_NAME, None)
+        return data.decode('latin-1')
 
     def get_uid(self) -> bytes:
         data = self.connect.exchange(self.COMMAND_GET_UID, None)

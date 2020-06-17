@@ -49,8 +49,6 @@ class DeviceWorker(QRunnable):
         self.ping_elapsed_time = 0
         self.is_stop = False
 
-        self.devices_list = DEVICES_ESSENTIAL_LIST
-
     def stop(self):
         self.is_stop = True
 
@@ -58,11 +56,6 @@ class DeviceWorker(QRunnable):
         return self._signals
 
     def activate_bootloader(self, activate: bool):
-        if activate:
-            self.devices_list = [DEVICE_BOOTLOADER]
-        else:
-            self.devices_list = DEVICES_ESSENTIAL_LIST
-
         self.is_activate_bootloader = activate
 
         if self.connect.is_connect():
@@ -82,6 +75,7 @@ class DeviceWorker(QRunnable):
     @Slot()
     def run(self):
         while True:
+
             try:
                 if self.connect.is_connect():
                     self._run_connected()
@@ -111,8 +105,22 @@ class DeviceWorker(QRunnable):
 
     def _run_connecting(self):
         while True:
-            if self.connect.find_device(self.devices_list):
-                break
+            if self.connect.find_and_connect():
+                self.cmd = build_commands(self.connect)
+
+                if self.cmd.device_name() == DEVICE_BOOTLOADER:
+
+                    if self.is_activate_bootloader:
+                        self.cmd.confirm()
+                    else:
+                        self.cmd.go_to_app()
+                        time.sleep(0.1)
+                        continue
+
+                self.signals().status.emit('Connected')
+                self.signals().connected.emit()
+                self._update_general_info()
+                return
 
             if self.is_stop:
                 return
@@ -120,19 +128,9 @@ class DeviceWorker(QRunnable):
             self.signals().status.emit('Wait for device...')
             time.sleep(1)
 
-        print('Connecting...')
-        if self.connect.connect():
-            self.cmd = build_commands(self.connect)
-            self.signals().status.emit('Connected')
-            self.signals().connected.emit()
-            self._update_general_info()
-        else:
-            self.signals().status.emit('Device open error...')
-            time.sleep(1)
-
     def _update_general_info(self):
         info = {
-            'name': self.connect.device_name(),
+            'name': self.cmd.get_name(),
             'uid': self.cmd.get_uid().hex(),
             'soft_version': '.'.join(str(x) for x in self.cmd.get_software_version()),
         }

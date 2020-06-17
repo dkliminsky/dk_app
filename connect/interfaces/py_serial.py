@@ -1,69 +1,56 @@
-# import serial
-# import serial.tools.list_ports
+import serial
+from serial.tools import list_ports
 
 
-# https://pyserial.readthedocs.io/en/latest/shortintro.html
+class PySerial:
 
-# class DKConnect:
-#     COMMAND_ERROR = 256
-#
-#     def __init__(self, description, baudrate=9600, timeout=1.0):
-#         self.description = description
-#         self.baudrate = baudrate
-#         self.timeout = timeout
-#         self.con = None
-#
-#     @staticmethod
-#     def list_ports():
-#         return serial.tools.list_ports.comports()
-#
-#     @staticmethod
-#     def find_device_commands():
-#         return serial.tools.list_ports.comports()
-#
-#     def connect(self):
-#         for port in self.list_ports():
-#             if port.description == self.description:
-#                 print('Connecting to {}...'.format(port.device))
-#                 self.con = serial.Serial(port.device, baudrate=self.baudrate, timeout=self.timeout)
-#                 return
-#
-#         self.con = None
-#         print('Device not found')
-#
-#     def send(self, command: int, data: Union[bytes, None]):
-#         if not self.con:
-#             self.connect()
-#
-#         if not self.con:
-#             return
-#
-#         command_size = 2
-#         data_size = len(data) if data else 0
-#         crc_size = 4
-#         package_size = (command_size + data_size + crc_size).to_bytes(2, byteorder='little')
-#         package_command = command.to_bytes(2, byteorder='little')
-#         package_data = data or b''
-#
-#         package_crc = self._crc_stm32(package_size + package_command + package_data)
-#         package_crc = package_crc.to_bytes(4, byteorder='little')
-#
-#         package = package_size + package_command + package_data + package_crc
-#         self.con.write(package)
-#
-#     def receive(self):
-#         if not self.con:
-#             return None, None
-#
-#         package_size = self.con.read(2)
-#         if not package_size:
-#             return None, None
-#         package_size = package_size[1] * 256 + package_size[0]
-#
-#         package_command = self.con.read(2)
-#         package_command = package_command[1] * 256 + package_command[0]
-#
-#         package_data = self.con.read(package_size - 2 - 4)
-#
-#         package_crc = self.con.read(4)
-#         return package_command, package_data
+    def __init__(self, vid, pid):
+        self.vid = vid
+        self.pid = pid
+        self.serial = None
+        self.pyserial = None
+        self.port_info = None
+
+    def find_device(self, devices_list: list):
+        for port in list_ports.comports():
+            if port.vid == self.vid and port.pid == self.pid:
+                self.port_info = port
+                return True
+                # print(port.device, port.pid, port.vid)
+
+        # info_list = QSerialPortInfo()
+        # ports = info_list.availablePorts()
+        # for port in ports:
+        #     # print('Found port:', port.systemLocation())
+        #     if port.description() in devices_list:
+        #         self.port_info = port
+        #         return True
+
+        return False
+
+    def clear(self):
+        if not self.pyserial:
+            return
+
+        self.pyserial.reset_input_buffer()
+        self.pyserial.reset_output_buffer()
+
+    def connect(self, timeout):
+        if not self.port_info:
+            return
+
+        print('Connecting to port:', self.port_info.location)
+        self.pyserial = serial.Serial(self.port_info.location, baudrate=115200, timeout=timeout)
+        if self.pyserial:
+            is_connect = True
+        else:
+            is_connect = False
+
+        return is_connect
+
+    def read(self, size: int) -> bytes:
+        return self.pyserial.read(size)
+
+    def write(self, data: bytes):
+        self.pyserial.write(data)
+

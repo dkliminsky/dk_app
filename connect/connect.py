@@ -1,8 +1,12 @@
 import time
 from typing import Union
 
-from .interfaces.qt_serial import QTSerial
+from .interfaces.qt_serial import QtSerial
+from .interfaces.py_serial import PySerial
 from .utils import bytes_to_uint
+
+
+SERIAL_CLASS = QtSerial
 
 
 class DKConnectError(Exception):
@@ -31,34 +35,52 @@ class DKConnectGotErrorCode(Exception):
 
 
 class DKConnect:
+    COMMAND_ECHO = 0
+    COMMAND_GET_NAME = 1
     COMMAND_ERROR = 0xFFFF
 
+    DK_VID = 1155
+    DK_PID = 22336
+
     def __init__(self):
-        self.serial = QTSerial()
+        self.serial = SERIAL_CLASS()
         self._is_connect = False
+        self._device_name = None
 
     def is_connect(self):
         return self._is_connect
 
-    def find_device(self, descriptions: list) -> bool:
-        return self.serial.find_device(descriptions)
+    def device_name(self):
+        return self._device_name
 
-    def connect(self, timeout=0.1) -> bool:
-        if self.serial.connect(timeout):
+    def find_and_connect(self) -> bool:
+        ports = self.serial.get_devices()
+        for port in ports:
+            if not (port.vid == self.DK_VID and port.pid == self.DK_PID):
+                continue
+
+            if not self.serial.connect(port.port_obj, 0.1):
+                print('Connecting error!')
+                continue
+
             self._is_connect = True
-        else:
-            self._is_connect = False
 
-        return self._is_connect
+            try:
+                self._device_name = self._get_device_name()
+            except DKConnectError:
+                self.disconnect()
+                continue
+
+            # Если удалось получить имя устройства, считаем что это устройство DK
+            return True
+
+        return False
 
     def disconnect(self):
         self._is_connect = False
 
     def clear(self):
         self.serial.clear()
-
-    def device_name(self):
-        return self.serial.get_description()
 
     def send(self, command: int, data: Union[bytes, None]):
         if not self.is_connect():
@@ -154,6 +176,10 @@ class DKConnect:
                 raise DKConnectCommandsMismatch(command, receive_command)
 
         return receive_data
+
+    def _get_device_name(self) -> bytes:
+        data = self.exchange(self.COMMAND_GET_NAME, None)
+        return data.decode('latin-1')
 
     def _read(self, size: int) -> bytes:
         try:

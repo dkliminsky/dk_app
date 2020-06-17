@@ -11,6 +11,10 @@ class DKBootloaderFirmwareNotAligned(Exception):
 class DKBootloaderCommands(DKGeneralCommands):
     DEVICE_NAME = 'DK Bootloader'
 
+    # Bootloader
+    COMMAND_CONFIRM_BOOTLOADER = 200
+    COMMAND_GO_TO_APP = 201
+
     # Program MCU flash
     COMMAND_ERASE = 210
     COMMAND_WRITE = 211
@@ -22,6 +26,13 @@ class DKBootloaderCommands(DKGeneralCommands):
 
     WRITE_BLOCK_SIZE = 16
     FIRMWARE_MD5_SIZE = 16
+
+    def confirm(self):
+        self.connect.exchange(self.COMMAND_CONFIRM_BOOTLOADER, None)
+
+    def go_to_app(self):
+        self.connect.send(self.COMMAND_GO_TO_APP, None)
+        self.connect.disconnect()
 
     def flash_erase(self) -> int:
         self.connect.send(self.COMMAND_ERASE, None)

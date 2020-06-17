@@ -1,28 +1,40 @@
 import serial
-
+from serial.tools import list_ports
 from PySide2.QtCore import QIODevice
 from PySide2.QtSerialPort import QSerialPort, QSerialPortInfo
 
+from interfaces.common import PortInfo
 
-class QTSerial:
+
+class QtSerial:
     def __init__(self):
         self.serial = None
         self.pyserial = None
         self.port_info = None
 
-    def get_description(self):
-        return self.port_info.description()
-
-    def find_device(self, devices_list: list):
+    @staticmethod
+    def get_devices():
         info_list = QSerialPortInfo()
         ports = info_list.availablePorts()
+        ports_info = []
         for port in ports:
-            # print('Found port:', port.systemLocation())
-            if port.description() in devices_list:
-                self.port_info = port
-                return True
+            port_info = PortInfo(port, port.vendorIdentifier(), port.productIdentifier())
+            ports_info.append(port_info)
 
-        return False
+        return ports_info
+
+    def connect(self, port_obj, timeout):
+        # self.serial = QSerialPort(port_obj)
+        # self.serial.setBaudRate(QSerialPort.Baud115200)
+        # return self.serial.open(QIODevice.ReadWrite):
+
+        print('Connecting to port:', port_obj.systemLocation())
+        try:
+            self.pyserial = serial.Serial(port_obj.systemLocation(), baudrate=115200, timeout=timeout)
+        except OSError as exc:
+            return False
+
+        return bool(self.pyserial)
 
     def clear(self):
         if not self.pyserial:
@@ -31,23 +43,34 @@ class QTSerial:
         self.pyserial.reset_input_buffer()
         self.pyserial.reset_output_buffer()
 
-    def connect(self, timeout):
-        if not self.port_info:
-            return
+    # def find_device(self, devices_list: list):
+    #     info_list = QSerialPortInfo()
+    #     ports = info_list.availablePorts()
+    #     for port in ports:
+    #         # print('Found port:', port.systemLocation())
+    #         if port.vendorIdentifier() == self.vid and port.productIdentifier() == self.pid:
+    #             self.port_info = port
+    #             return True
+    #
+    #     return False
 
-        # self.serial = QSerialPort(port)
-        # self.serial.setBaudRate(QSerialPort.Baud115200)
-        # if not self.serial.open(QIODevice.ReadWrite):
-        #     raise IOError("Cannot connect to device")
-
-        # print('Connecting to port:', self.port_info.systemLocation())
-        self.pyserial = serial.Serial(self.port_info.systemLocation(), baudrate=115200, timeout=timeout)
-        if self.pyserial:
-            is_connect = True
-        else:
-            is_connect = False
-
-        return is_connect
+    # def connect(self, timeout):
+    #     if not self.port_info:
+    #         return
+    #
+    #     # self.serial = QSerialPort(port)
+    #     # self.serial.setBaudRate(QSerialPort.Baud115200)
+    #     # if not self.serial.open(QIODevice.ReadWrite):
+    #     #     raise IOError("Cannot connect to device")
+    #
+    #     # print('Connecting to port:', self.port_info.systemLocation())
+    #     self.pyserial = serial.Serial(self.port_info.systemLocation(), baudrate=115200, timeout=timeout)
+    #     if self.pyserial:
+    #         is_connect = True
+    #     else:
+    #         is_connect = False
+    #
+    #     return is_connect
 
     def read(self, size: int) -> bytes:
         # data = bytes()
