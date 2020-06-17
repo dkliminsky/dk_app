@@ -1,32 +1,34 @@
 import serial
 from serial.tools import list_ports
 
+from .common import PortInfo
+
 
 class PySerial:
 
-    def __init__(self, vid, pid):
-        self.vid = vid
-        self.pid = pid
+    def __init__(self):
         self.serial = None
         self.pyserial = None
         self.port_info = None
 
-    def find_device(self, devices_list: list):
+    @staticmethod
+    def get_devices():
+        ports_info = []
         for port in list_ports.comports():
-            if port.vid == self.vid and port.pid == self.pid:
-                self.port_info = port
-                return True
-                # print(port.device, port.pid, port.vid)
+            port_info = PortInfo(port, port.vid, port.pid)
+            ports_info.append(port_info)
 
-        # info_list = QSerialPortInfo()
-        # ports = info_list.availablePorts()
-        # for port in ports:
-        #     # print('Found port:', port.systemLocation())
-        #     if port.description() in devices_list:
-        #         self.port_info = port
-        #         return True
+        return ports_info
 
-        return False
+    def connect(self, port_obj, timeout):
+        print('Connecting to port:', port_obj.usb_info())
+        try:
+            self.pyserial = serial.Serial(port_obj, baudrate=115200, timeout=timeout)
+        except OSError as exc:
+            print('os error', str(exc))
+            return False
+
+        return bool(self.pyserial)
 
     def clear(self):
         if not self.pyserial:
@@ -35,22 +37,8 @@ class PySerial:
         self.pyserial.reset_input_buffer()
         self.pyserial.reset_output_buffer()
 
-    def connect(self, timeout):
-        if not self.port_info:
-            return
-
-        print('Connecting to port:', self.port_info.location)
-        self.pyserial = serial.Serial(self.port_info.location, baudrate=115200, timeout=timeout)
-        if self.pyserial:
-            is_connect = True
-        else:
-            is_connect = False
-
-        return is_connect
-
     def read(self, size: int) -> bytes:
         return self.pyserial.read(size)
 
     def write(self, data: bytes):
         self.pyserial.write(data)
-

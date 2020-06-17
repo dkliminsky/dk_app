@@ -3,7 +3,7 @@ from serial.tools import list_ports
 from PySide2.QtCore import QIODevice
 from PySide2.QtSerialPort import QSerialPort, QSerialPortInfo
 
-from interfaces.common import PortInfo
+from .common import PortInfo
 
 
 class QtSerial:
@@ -28,9 +28,9 @@ class QtSerial:
         # self.serial.setBaudRate(QSerialPort.Baud115200)
         # return self.serial.open(QIODevice.ReadWrite):
 
-        print('Connecting to port:', port_obj.systemLocation())
+        print('Connecting to port:', port_obj.portName())
         try:
-            self.pyserial = serial.Serial(port_obj.systemLocation(), baudrate=115200, timeout=timeout)
+            self.pyserial = serial.Serial(port_obj.portName(), baudrate=115200, timeout=timeout)
         except OSError as exc:
             return False
 

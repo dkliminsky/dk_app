@@ -6,7 +6,8 @@ from .interfaces.py_serial import PySerial
 from .utils import bytes_to_uint
 
 
-SERIAL_CLASS = QtSerial
+# SERIAL_CLASS = QtSerial
+SERIAL_CLASS = PySerial
 
 
 class DKConnectError(Exception):
