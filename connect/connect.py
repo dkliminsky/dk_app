@@ -1,13 +1,7 @@
 import time
 from typing import Union
 
-from .interfaces.qt_serial import QtSerial
-from .interfaces.py_serial import PySerial
 from .utils import bytes_to_uint
-
-
-# SERIAL_CLASS = QtSerial
-SERIAL_CLASS = PySerial
 
 
 class DKConnectError(Exception):
@@ -43,8 +37,16 @@ class DKConnect:
     DK_VID = 1155
     DK_PID = 22336
 
-    def __init__(self):
-        self.serial = SERIAL_CLASS()
+    def __init__(self, serial_class='py_serial'):
+        if serial_class == 'py_serial':
+            from .interfaces.py_serial import PySerial
+            self.serial = PySerial()
+        elif serial_class == 'qt_serial':
+            from .interfaces.qt_serial import QtSerial
+            self.serial = QtSerial()
+        else:
+            raise NotImplementedError
+
         self._is_connect = False
         self._device_name = None
 

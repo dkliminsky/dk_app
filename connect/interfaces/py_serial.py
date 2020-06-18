@@ -23,7 +23,7 @@ class PySerial:
     def connect(self, port_obj, timeout):
         print('Connecting to port:', port_obj.usb_info())
         try:
-            self.pyserial = serial.Serial(port_obj, baudrate=115200, timeout=timeout)
+            self.pyserial = serial.Serial(port_obj.device, baudrate=115200, timeout=timeout)
         except OSError as exc:
             print('os error', str(exc))
             return False

@@ -28,10 +28,10 @@ class QtSerial:
         # self.serial.setBaudRate(QSerialPort.Baud115200)
         # return self.serial.open(QIODevice.ReadWrite):
 
-        print('Connecting to port:', port_obj.portName())
+        print('Connecting to port:', port_obj.systemLocation())
         try:
-            self.pyserial = serial.Serial(port_obj.portName(), baudrate=115200, timeout=timeout)
-        except OSError as exc:
+            self.pyserial = serial.Serial(port_obj.systemLocation(), baudrate=115200, timeout=timeout)
+        except (FileNotFoundError, OSError) as exc:
             return False
 
         return bool(self.pyserial)
