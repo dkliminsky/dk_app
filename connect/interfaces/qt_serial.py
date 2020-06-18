@@ -36,6 +36,9 @@ class QtSerial:
 
         return bool(self.pyserial)
 
+    def close(self):
+        self.pyserial.close()
+
     def clear(self):
         if not self.pyserial:
             return

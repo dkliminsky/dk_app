@@ -1,9 +1,13 @@
+import time
+
 from connect import DKConnect, build_commands
 
 con = DKConnect()
 while True:
     if con.find_and_connect():
         break
+
+    time.sleep(1)
 
 cmd = build_commands(con)
 

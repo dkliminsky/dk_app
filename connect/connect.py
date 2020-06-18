@@ -81,6 +81,7 @@ class DKConnect:
 
     def disconnect(self):
         self._is_connect = False
+        self.serial.close()
 
     def clear(self):
         self.serial.clear()
@@ -180,7 +181,7 @@ class DKConnect:
 
         return receive_data
 
-    def _get_device_name(self) -> bytes:
+    def _get_device_name(self) -> str:
         data = self.exchange(self.COMMAND_GET_NAME, None)
         return data.decode('latin-1')
 
