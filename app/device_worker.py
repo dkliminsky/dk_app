@@ -91,6 +91,8 @@ class DeviceWorker(QRunnable):
             if self.is_stop:
                 break
 
+        self.connect.disconnect()
+
     def _run_connected(self):
         # Check that the device is connected
         curr_time = time.time()
@@ -115,7 +117,7 @@ class DeviceWorker(QRunnable):
                         self.cmd.confirm()
                     else:
                         self.cmd.go_to_app()
-                        time.sleep(0.1)
+                        time.sleep(1)
                         continue
 
                 self.signals().status.emit('Connected')

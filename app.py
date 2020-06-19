@@ -40,8 +40,17 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename='app.log', level=logging.DEBUG)
-    logging.info('Started')
+    # logging.basicConfig(filename='app.log', level=logging.DEBUG)
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    console_handler = logging.StreamHandler()
+    logger.addHandler(console_handler)
+
+    file_handler = logging.FileHandler('app.log')
+    logger.addHandler(file_handler)
+
+    logging.info('Started DK App')
     app = QApplication([])
     main_window = MainWindow()
     main_window.show()
