@@ -13,6 +13,9 @@ from app.device_widget import DeviceWidget
 from app.device_worker import DeviceWorker
 
 
+LOG_FILE = 'dk_app.log'
+
+
 class MainWindow(QMainWindow):
 
     def __init__(self, *args, **kwargs):
@@ -40,14 +43,13 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == '__main__':
-    # logging.basicConfig(filename='app.log', level=logging.DEBUG)
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
     console_handler = logging.StreamHandler()
     logger.addHandler(console_handler)
 
-    file_handler = logging.FileHandler('app.log')
+    file_handler = logging.FileHandler(LOG_FILE)
     logger.addHandler(file_handler)
 
     logging.info('Started DK App')
