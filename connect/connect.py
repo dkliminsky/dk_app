@@ -1,3 +1,4 @@
+import logging
 import time
 from typing import Union
 
@@ -38,6 +39,8 @@ class DKConnect:
     DK_PID = 22336
 
     def __init__(self, serial_class='py_serial'):
+        logging.debug('Serial class: {}'.format(serial_class))
+
         if serial_class == 'py_serial':
             from .interfaces.py_serial import PySerial
             self.serial = PySerial()
@@ -63,7 +66,7 @@ class DKConnect:
                 continue
 
             if not self.serial.connect(port.port_obj, 0.1):
-                print('Connecting error!')
+                logging.info('Connecting error, vid({}), pid({})'.format(port.vid, port.pid))
                 continue
 
             self._is_connect = True
@@ -71,15 +74,18 @@ class DKConnect:
             try:
                 self._device_name = self._get_device_name()
             except DKConnectError:
+                logging.info('Get device name error, vid({}), pid({})'.format(port.vid, port.pid))
                 self.disconnect()
                 continue
 
             # Если удалось получить имя устройства, считаем что это устройство DK
+            logging.info('Connected, device_name({}), vid({}), pid({})'.format(self._device_name, port.vid, port.pid))
             return True
 
         return False
 
     def disconnect(self):
+        logging.info('Disconnecting')
         self._is_connect = False
         self.serial.close()
 
@@ -154,7 +160,7 @@ class DKConnect:
                 raise exchange_exception
 
             if tries > 1:
-                print("Exchange error, repeat. Try:", tries)
+                logging.warning("Exchange error, repeat. Attempt number: {}".format(tries))
 
             try:
                 self.send(command, data)
@@ -166,7 +172,7 @@ class DKConnect:
             break
 
         if receive_command == self.COMMAND_ERROR:
-            print("Receive error: {}".format(bytes_to_uint(receive_data)))
+            logging.warning("Received error: {}".format(bytes_to_uint(receive_data)))
 
             if not is_silent:
                 raise DKConnectGotErrorCode(bytes_to_uint(receive_data))
@@ -174,7 +180,7 @@ class DKConnect:
             return None
 
         if receive_command != command and not is_silent:
-            print("Error: send command: {}, receive command: {}".format(command, receive_command))
+            logging.warning("Mismatch commands. Expected: {}, received: {}".format(command, receive_command))
 
             if not is_silent:
                 raise DKConnectCommandsMismatch(command, receive_command)

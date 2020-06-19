@@ -1,3 +1,4 @@
+import logging
 import queue
 import time
 
@@ -176,11 +177,13 @@ class DeviceWorker(QRunnable):
         self.signals().info_message.emit('License key updated successfully. Reset the device.')
 
     def _upload_firmware(self, path_to_firmware):
+        logging.info('Starting upload firmware')
         self.signals().upload_firmware_progress.emit(self.PROGRESS_ACTIVATE_BOOTLOADER, 0)
 
         is_return_to_essential = not self.is_activate_bootloader
 
         if not self.is_bootloader():
+            logging.info('Reset to bootloader')
             self.cmd.system_reset()
             self._disconnected()
 
@@ -191,15 +194,15 @@ class DeviceWorker(QRunnable):
             self.signals().upload_firmware_progress.emit(self.PROGRESS_ACTIVATE_BOOTLOADER, 66)
 
             self.activate_bootloader(True)
-            print('Connecting to bootloader...')
+            logging.info('Connecting to bootloader')
             self._run_connecting()
 
+        logging.info('Erasing flash')
         self.signals().upload_firmware_progress.emit(self.PROGRESS_ERASE_FLASH, 0)
-
         self.cmd.flash_erase()
 
+        logging.info('Writing to flash')
         self.signals().upload_firmware_progress.emit(self.PROGRESS_WRITE_FLASH, 0)
-
         gen = self.cmd.flash_write_async(path_to_firmware)
 
         try:
@@ -213,6 +216,7 @@ class DeviceWorker(QRunnable):
         except StopIteration:
             pass
 
+        logging.info('Checking flash')
         self.signals().upload_firmware_progress.emit(self.PROGRESS_CHECK_FLASH, 0)
 
         if self.cmd.flash_check(path_to_firmware):
@@ -224,5 +228,5 @@ class DeviceWorker(QRunnable):
         self.signals().upload_firmware_progress.emit(self.PROGRESS_FIRMWARE_DONE, 100)
 
         if is_return_to_essential:
-            print('Returning to essential...')
+            logging.info('Returning to main firmware')
             self.activate_bootloader(False)

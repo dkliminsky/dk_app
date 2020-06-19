@@ -1,3 +1,4 @@
+import logging
 import os
 
 from .commands import DKGeneralCommands
@@ -46,7 +47,7 @@ class DKBootloaderCommands(DKGeneralCommands):
 
     def flash_write_async(self, file_name: str):
         file_size = os.path.getsize(file_name)
-        print('File size:', file_size)
+        logging.info('Firmware file size: {}'.format(file_size))
         prev_percent = 0
 
         with open(file_name, 'rb') as firmware_file:
@@ -60,14 +61,14 @@ class DKBootloaderCommands(DKGeneralCommands):
                     return
 
                 if len(block) < self.WRITE_BLOCK_SIZE:
-                    print('File not aligned to %d bytes!' % self.WRITE_BLOCK_SIZE)
+                    logging.error('File not aligned to {}} bytes!'.format(self.WRITE_BLOCK_SIZE))
                     raise DKBootloaderFirmwareNotAligned
 
                 self.flash_write_part(curr_pos, block)
                 curr_pos += len(block)
                 percent = int(curr_pos/file_size*100)
                 if percent != prev_percent:
-                    print("Uploading firmware: {}%".format(percent))
+                    print("{}%".format(percent))
                     prev_percent = percent
                     yield percent
 
@@ -78,8 +79,8 @@ class DKBootloaderCommands(DKGeneralCommands):
             file_md5 = firmware_file.read(self.FIRMWARE_MD5_SIZE)
 
         flash_md5 = self.calc_md5(firmware_size)
-        print('File MD5:', file_md5.hex())
-        print('Flash MD5:', flash_md5.hex())
+        logging.info('File MD5: {}'.format(file_md5.hex()))
+        logging.info('Flash MD5: {}'.format(flash_md5.hex()))
         return file_md5 == flash_md5
 
     def calc_md5(self, flash_size: int) -> bytes:

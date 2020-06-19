@@ -1,3 +1,4 @@
+import logging
 import os
 import PySide2
 
@@ -39,6 +40,8 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(filename='app.log', level=logging.DEBUG)
+    logging.info('Started')
     app = QApplication([])
     main_window = MainWindow()
     main_window.show()

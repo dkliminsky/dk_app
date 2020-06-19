@@ -1,3 +1,4 @@
+import logging
 import serial
 from serial.tools import list_ports
 
@@ -21,11 +22,11 @@ class PySerial:
         return ports_info
 
     def connect(self, port_obj, timeout):
-        print('Connecting to port:', port_obj.usb_info())
+        logging.info('Connecting to port: {}'.format(port_obj.usb_info()))
         try:
             self.pyserial = serial.Serial(port_obj.device, baudrate=115200, timeout=timeout)
-        except OSError as exc:
-            print('os error', str(exc))
+        except (FileNotFoundError, OSError) as exc:
+            logging.debug('Connecting error', exc_info=True)
             return False
 
         return bool(self.pyserial)
