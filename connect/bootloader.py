@@ -5,6 +5,9 @@ from .commands import DKGeneralCommands
 from .utils import bytes_to_float, bytes_to_uint, int16_to_bytes, int32_to_bytes, float_to_bytes, int8_to_bytes
 
 
+UPLOAD_ATTEMPTS = 5
+
+
 class DKBootloaderFirmwareNotAligned(Exception):
     pass
 
@@ -43,7 +46,7 @@ class DKBootloaderCommands(DKGeneralCommands):
 
     def flash_write_part(self, pos: int, data: bytes):
         params = int32_to_bytes(pos) + data
-        self.connect.exchange(self.COMMAND_WRITE, params, retry=3)
+        self.connect.exchange(self.COMMAND_WRITE, params, retry=UPLOAD_ATTEMPTS)
 
     def flash_write_async(self, file_name: str):
         file_size = os.path.getsize(file_name)
