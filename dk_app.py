@@ -6,8 +6,8 @@ dirname = os.path.dirname(PySide2.__file__)
 plugin_path = os.path.join(dirname, 'plugins', 'platforms')
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = plugin_path
 
-from PySide2.QtCore import QThreadPool
-from PySide2.QtWidgets import *
+from PySide2 import QtCore
+from PySide2 import QtWidgets
 
 from app.device_widget import DeviceWidget
 from app.device_worker import DeviceWorker
@@ -16,7 +16,7 @@ from app.device_worker import DeviceWorker
 LOG_FILE = 'dk_app.log'
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -24,16 +24,16 @@ class MainWindow(QMainWindow):
         self.device_worker = DeviceWorker()
         self.device_widget = DeviceWidget(self.device_worker)
 
-        self.threadpool = QThreadPool()
+        self.threadpool = QtCore.QThreadPool()
         self.threadpool.start(self.device_worker)
 
         self.setWindowTitle("DK App")
 
-        layout1 = QHBoxLayout()
+        layout1 = QtWidgets.QHBoxLayout()
 
         layout1.addWidget(self.device_widget)
 
-        widget = QWidget()
+        widget = QtWidgets.QWidget()
         widget.setLayout(layout1)
         self.setCentralWidget(widget)
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     logger.addHandler(file_handler)
 
     logging.info('Started DK App')
-    app = QApplication([])
+    app = QtWidgets.QApplication([])
     main_window = MainWindow()
     main_window.show()
     app.exec_()

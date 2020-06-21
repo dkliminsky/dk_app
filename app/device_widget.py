@@ -1,27 +1,26 @@
-from PySide2.QtWidgets import *
-
+from PySide2 import QtWidgets
 
 from app.device_worker import DeviceWorker
 
 
-class LicenseWidget(QWidget):
+class LicenseWidget(QtWidgets.QWidget):
     def __init__(self, device_worker: DeviceWorker, *args, **kwargs):
         super(LicenseWidget, self).__init__(*args, **kwargs)
         self.worker = device_worker
 
         self.setWindowTitle('Update license')
 
-        self.device_id_edit = QLineEdit('n/a')
+        self.device_id_edit = QtWidgets.QLineEdit('n/a')
         self.device_id_edit.setReadOnly(True)
-        self.key_edit = QPlainTextEdit('n/a')
+        self.key_edit = QtWidgets.QPlainTextEdit('n/a')
 
-        layout = QVBoxLayout()
-        layout.addWidget(QLabel('Device ID'))
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(QtWidgets.QLabel('Device ID'))
         layout.addWidget(self.device_id_edit)
-        layout.addWidget(QLabel('License key'))
+        layout.addWidget(QtWidgets.QLabel('License key'))
         layout.addWidget(self.key_edit)
 
-        self.update_button = QPushButton('Update license key')
+        self.update_button = QtWidgets.QPushButton('Update license key')
         self.update_button.clicked.connect(self._update_key)
         layout.addWidget(self.update_button)
 
@@ -35,13 +34,13 @@ class LicenseWidget(QWidget):
         key = self.key_edit.toPlainText().strip()
 
         if len(key) != 32*2:
-            QMessageBox.critical(self, 'Error', 'Invalid key length')
+            QtWidgets.QMessageBox.critical(self, 'Error', 'Invalid key length')
             return
 
         self.worker.add_command(self.worker.COMMAND_UPDATE_LICENSE_KEY, key)
 
 
-class FirmwareWidget(QWidget):
+class FirmwareWidget(QtWidgets.QWidget):
     def __init__(self, device_worker: DeviceWorker, *args, **kwargs):
         super(FirmwareWidget, self).__init__(*args, **kwargs)
         self.worker = device_worker
@@ -52,15 +51,15 @@ class FirmwareWidget(QWidget):
 
         self.setWindowTitle('Upload firmware')
 
-        self.firmware_label = QLabel("")
-        self.firmware_button = QPushButton('Upload firmware')
+        self.firmware_label = QtWidgets.QLabel("")
+        self.firmware_button = QtWidgets.QPushButton('Upload firmware')
         self.firmware_button.clicked.connect(self._update)
 
-        self.progress_label = QLabel("")
-        self.progress_widget = QProgressBar()
+        self.progress_label = QtWidgets.QLabel("")
+        self.progress_widget = QtWidgets.QProgressBar()
 
-        layout = QVBoxLayout()
-        layout.addWidget(QLabel("Upload firmware file to device:"))
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(QtWidgets.QLabel("Upload firmware file to device:"))
         layout.addWidget(self.firmware_label)
         layout.addWidget(self.progress_label)
         layout.addWidget(self.progress_widget)
@@ -69,7 +68,7 @@ class FirmwareWidget(QWidget):
         self.setLayout(layout)
 
     def activate(self):
-        self.path_to_firmware, _ = QFileDialog.getOpenFileName(self, "Load Firmware", "~/",
+        self.path_to_firmware, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Load Firmware", "~/",
                                                                "DKF File (*.dkf)")
 
         if not self.path_to_firmware:
@@ -93,7 +92,7 @@ class FirmwareWidget(QWidget):
         pass
 
 
-class DeviceWidget(QWidget):
+class DeviceWidget(QtWidgets.QWidget):
     def __init__(self, device_worker: DeviceWorker, *args, **kwargs):
         super(DeviceWidget, self).__init__(*args, **kwargs)
 
@@ -113,24 +112,24 @@ class DeviceWidget(QWidget):
         self.license_window = LicenseWidget(self.worker)
         self.firmware_window = FirmwareWidget(self.worker)
 
-        self.status_label = QLabel("n/a")
-        self.name_label = QLabel("n/a")
-        self.soft_version_label = QLabel("n/a")
-        self.hard_version_label = QLabel("n/a")
-        self.license_label = QLabel("n/a")
+        self.status_label = QtWidgets.QLabel("n/a")
+        self.name_label = QtWidgets.QLabel("n/a")
+        self.soft_version_label = QtWidgets.QLabel("n/a")
+        self.hard_version_label = QtWidgets.QLabel("n/a")
+        self.license_label = QtWidgets.QLabel("n/a")
 
-        self.reset_button = QPushButton('Reset device')
-        self.set_license_button = QPushButton('Set license key...')
-        self.firmware_button = QPushButton('Upload firmware...')
-        self.bootloader_check = QCheckBox('Switch to bootloader')
+        self.reset_button = QtWidgets.QPushButton('Reset device')
+        self.set_license_button = QtWidgets.QPushButton('Set license key...')
+        self.firmware_button = QtWidgets.QPushButton('Upload firmware...')
+        self.bootloader_check = QtWidgets.QCheckBox('Switch to bootloader')
 
         self._make_widgets()
         self._disconnected_slot()
 
     def _make_widgets(self):
-        self.device_layout = QHBoxLayout()
+        self.device_layout = QtWidgets.QHBoxLayout()
 
-        self.info_layout = QVBoxLayout()
+        self.info_layout = QtWidgets.QVBoxLayout()
         self._add_info_line('Status:', self.status_label)
         self._add_info_line('Name:', self.name_label)
         self._add_info_line('Software version:', self.soft_version_label)
@@ -139,7 +138,7 @@ class DeviceWidget(QWidget):
         self.info_layout.addStretch(1)
         self.device_layout.addLayout(self.info_layout)
 
-        self.command_layout = QVBoxLayout()
+        self.command_layout = QtWidgets.QVBoxLayout()
         self.command_layout.addWidget(self.reset_button)
         self.command_layout.addWidget(self.set_license_button)
         self.command_layout.addWidget(self.firmware_button)
@@ -155,8 +154,8 @@ class DeviceWidget(QWidget):
         self.setLayout(self.device_layout)
 
     def _add_info_line(self, name, layout):
-        h_layout = QHBoxLayout()
-        h_layout.addWidget(QLabel(name))
+        h_layout = QtWidgets.QHBoxLayout()
+        h_layout.addWidget(QtWidgets.QLabel(name))
         h_layout.addWidget(layout)
         self.info_layout.addLayout(h_layout)
 
@@ -200,8 +199,8 @@ class DeviceWidget(QWidget):
         self.firmware_button.setEnabled(False)
 
     def _error_message_slot(self, text):
-        QMessageBox.critical(self, 'Error', text)
+        QtWidgets.QMessageBox.critical(self, 'Error', text)
 
     def _info_message_slot(self, text):
-        QMessageBox.information(self, 'Info', text)
+        QtWidgets.QMessageBox.information(self, 'Info', text)
 

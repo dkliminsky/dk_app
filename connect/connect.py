@@ -73,8 +73,8 @@ class DKConnect:
 
             try:
                 self._device_name = self._get_device_name()
-            except DKConnectError:
-                logging.info('Get device name error, vid({}), pid({})'.format(port.vid, port.pid))
+            except DKConnectError as exc:
+                logging.info('Get device name error, vid({}), pid({})'.format(port.vid, port.pid), exc_info=True)
                 self.disconnect()
                 continue
 

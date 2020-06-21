@@ -2,26 +2,27 @@ import logging
 import queue
 import time
 
-from PySide2.QtCore import QRunnable, Slot, QObject, Signal
+from PySide2 import QtCore
+# from PySide2.QtCore import QRunnable, Slot, QObject, Signal
 
 from connect import DKConnect, DKTankCommands, DKConnectError, DKConnectCommandsMismatch, DKConnectGotErrorCode, \
     DKConnectResponseTimoutError, DKBootloaderCommands, DEVICES_ESSENTIAL_LIST, build_commands, DEVICE_BOOTLOADER
 
 
-class DeviceWorkerSignals(QObject):
-    status = Signal(str)
-    info = Signal(dict)
-    connected = Signal()
-    disconnected = Signal()
+class DeviceWorkerSignals(QtCore.QObject):
+    status = QtCore.Signal(str)
+    info = QtCore.Signal(dict)
+    connected = QtCore.Signal()
+    disconnected = QtCore.Signal()
 
-    upload_firmware_progress = Signal(str, int)
-    upload_firmware_done = Signal()
+    upload_firmware_progress = QtCore.Signal(str, int)
+    upload_firmware_done = QtCore.Signal()
 
-    error_message = Signal(str)
-    info_message = Signal(str)
+    error_message = QtCore.Signal(str)
+    info_message = QtCore.Signal(str)
 
 
-class DeviceWorker(QRunnable):
+class DeviceWorker(QtCore.QRunnable):
     LICENSE_LIST = {
         0: 'No license',
         1: 'Lite',
@@ -73,7 +74,7 @@ class DeviceWorker(QRunnable):
     def add_command(self, command_name: str, command_params=None):
         self.queue.put((command_name, command_params))
 
-    @Slot()
+    @QtCore.Slot()
     def run(self):
         while True:
 
@@ -117,7 +118,7 @@ class DeviceWorker(QRunnable):
                         self.cmd.confirm()
                     else:
                         self.cmd.go_to_app()
-                        time.sleep(1)
+                        time.sleep(2)
                         continue
 
                 self.signals().status.emit('Connected')
