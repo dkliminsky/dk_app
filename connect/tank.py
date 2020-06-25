@@ -38,21 +38,26 @@ class DKTankCommands(DKGeneralCommands):
     COMMAND_GET_LICENSE_KEY = 11
     COMMAND_GET_ACCESS_LEVEL = 12
     COMMAND_GET_FREE_MEM = 13
-    COMMAND_GET_BATTERY_VOLTAGE = 14
-    COMMAND_GET_PLAYER_PERFORMANCE = 15
+    COMMAND_GET_VOLTAGE_BATTERY = 14
+    COMMAND_GET_VOLTAGE_5V = 15
+
+    COMMAND_GET_PLAYER_PERFORMANCE = 20
 
     COMMAND_GET_PARAM = 30
     COMMAND_SET_PARAM = 31
     COMMAND_SAVE_PARAMS = 32
     COMMAND_RESET_PARAMS = 33
 
-    COMMAND_WRITE_HARDWARE_VERSION = 100
     COMMAND_WRITE_LICENSE_KEY = 101
 
     COMMAND_WRITE_SOUND_INFO = 110
     COMMAND_WRITE_SOUND_FILE = 111
     COMMAND_GET_SOUND_INFO = 112
     COMMAND_RESET_SOUNDS = 113
+
+    COMMAND_WRITE_HARDWARE_VERSION = 150
+    COMMAND_READ_FLASH = 151
+    COMMAND_START_TESTS = 152
 
     def get_hardware_version(self) -> (int, int, int, int):
         data = self.connect.exchange(self.COMMAND_GET_HARDWARE_VERSION, None)
@@ -70,8 +75,12 @@ class DKTankCommands(DKGeneralCommands):
         data = self.connect.exchange(self.COMMAND_GET_FREE_MEM, None)
         return bytes_to_uint(data)
 
-    def get_battery_voltage(self) -> float:
-        data = self.connect.exchange(self.COMMAND_GET_BATTERY_VOLTAGE, None)
+    def get_voltage_battery(self) -> float:
+        data = self.connect.exchange(self.COMMAND_GET_VOLTAGE_BATTERY, None)
+        return bytes_to_float(data)
+
+    def get_voltage_5v(self) -> float:
+        data = self.connect.exchange(self.COMMAND_GET_VOLTAGE_5V, None)
         return bytes_to_float(data)
 
     def get_player_performance(self):
@@ -104,11 +113,6 @@ class DKTankCommands(DKGeneralCommands):
 
     def reset_params(self):
         self.connect.exchange(self.COMMAND_RESET_PARAMS)
-
-    def write_hardware_version(self, major, minor, patch):
-        version = bytes([major, minor]) + int16_to_bytes(patch)
-        data = self.connect.exchange(self.COMMAND_WRITE_HARDWARE_VERSION, version)
-        return data
 
     def write_license_key(self, key: bytes):
         data = self.connect.exchange(self.COMMAND_WRITE_LICENSE_KEY, key)
@@ -154,3 +158,16 @@ class DKTankCommands(DKGeneralCommands):
 
     def reset_sounds(self):
         self.connect.exchange(self.COMMAND_RESET_SOUNDS)
+
+    def write_hardware_version(self, major, minor, patch):
+        version = bytes([major, minor]) + int16_to_bytes(patch)
+        data = self.connect.exchange(self.COMMAND_WRITE_HARDWARE_VERSION, version)
+        return data
+
+    def read_flash(self, addr=0, length=256):
+        params = int32_to_bytes(addr) + int16_to_bytes(length)
+        data = self.connect.exchange(self.COMMAND_READ_FLASH, params)
+        return data
+
+    def start_tests(self):
+        self.connect.exchange(self.COMMAND_START_TESTS)

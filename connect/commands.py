@@ -19,8 +19,6 @@ class DKGeneralCommands(DKCommands):
     COMMAND_GET_SOFTWARE_VERSION = 3
     COMMAND_SYSTEM_RESET = 4
 
-    COMMAND_READ_FLASH = 0xFFFE
-
     def ping(self) -> bool:
         data = self.connect.exchange(self.COMMAND_ECHO, b'ping')
         return data == b'ping'
@@ -41,8 +39,3 @@ class DKGeneralCommands(DKCommands):
         self.connect.send(self.COMMAND_SYSTEM_RESET, None)
         self.connect.disconnect()
 
-    def read_flash(self, addr=0, length=256):
-        # Work only in DEBUG mode
-        params = int32_to_bytes(addr) + int16_to_bytes(length)
-        data = self.connect.exchange(self.COMMAND_READ_FLASH, params)
-        return data
