@@ -57,7 +57,9 @@ class DKTankCommands(DKGeneralCommands):
 
     COMMAND_WRITE_HARDWARE_VERSION = 150
     COMMAND_READ_FLASH = 151
-    COMMAND_START_TESTS = 152
+    COMMAND_JUMP_TO_STM_BOOTLOADER = 152
+
+    COMMAND_START_TESTS = 170
 
     def get_hardware_version(self) -> (int, int, int, int):
         data = self.connect.exchange(self.COMMAND_GET_HARDWARE_VERSION, None)
@@ -168,6 +170,10 @@ class DKTankCommands(DKGeneralCommands):
         params = int32_to_bytes(addr) + int16_to_bytes(length)
         data = self.connect.exchange(self.COMMAND_READ_FLASH, params)
         return data
+
+    def jump_to_stm_bootloader(self):
+        self.connect.send(self.COMMAND_JUMP_TO_STM_BOOTLOADER, None)
+        self.connect.disconnect()
 
     def start_tests(self):
         self.connect.exchange(self.COMMAND_START_TESTS)

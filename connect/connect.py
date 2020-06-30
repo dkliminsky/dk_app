@@ -117,18 +117,18 @@ class DKConnect:
         if not self.is_connect():
             raise DKConnectDisconnectedError
 
-        package_size = self._read(2)
+        package_size = self.read(2)
         if not package_size:
             raise DKConnectResponseTimoutError
 
         package_size = package_size[1] * 256 + package_size[0]
 
-        package_command = self._read(2)
+        package_command = self.read(2)
         package_command = package_command[1] * 256 + package_command[0]
 
-        package_data = self._read(package_size - 2 - 4)
+        package_data = self.read(package_size - 2 - 4)
 
-        package_crc = self._read(4)
+        package_crc = self.read(4)
 
         return package_command, package_data
 
@@ -191,9 +191,16 @@ class DKConnect:
         data = self.exchange(self.COMMAND_GET_NAME, None)
         return data.decode('latin-1')
 
-    def _read(self, size: int) -> bytes:
+    def read(self, size: int) -> bytes:
         try:
             return self.serial.read(size)
+        except (IOError, OSError):
+            self._is_connect = False
+            raise DKConnectError
+
+    def readline(self) -> bytes:
+        try:
+            return self.serial.readline()
         except (IOError, OSError):
             self._is_connect = False
             raise DKConnectError

@@ -45,5 +45,8 @@ class PySerial:
     def read(self, size: int) -> bytes:
         return self.pyserial.read(size)
 
+    def readline(self) -> bytes:
+        return self.pyserial.readline()
+
     def write(self, data: bytes):
         self.pyserial.write(data)

@@ -23,7 +23,7 @@ class DKGeneralCommands(DKCommands):
         data = self.connect.exchange(self.COMMAND_ECHO, b'ping')
         return data == b'ping'
 
-    def get_name(self) -> bytes:
+    def get_name(self) -> str:
         data = self.connect.exchange(self.COMMAND_GET_NAME, None)
         return data.decode('latin-1')
 
