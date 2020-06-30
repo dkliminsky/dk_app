@@ -1,11 +1,12 @@
 from .connect import DKConnect, DKConnectError, DKConnectResponseTimoutError, DKConnectCommandsMismatch, DKConnectGotErrorCode
 from .tank import DKTankCommands
+from .unit import DKUnitCommands
 from .bootloader import DKBootloaderCommands
 
 
 DEVICE_BOOTLOADER = DKBootloaderCommands.DEVICE_NAME
 DEVICE_TANK = DKTankCommands.DEVICE_NAME
-DEVICE_UNIT = 'DK Unit'
+DEVICE_UNIT = DKUnitCommands.DEVICE_NAME
 
 
 DEVICES_ESSENTIAL_LIST = [DEVICE_TANK, DEVICE_UNIT]
@@ -14,7 +15,7 @@ DEVICES_ESSENTIAL_LIST = [DEVICE_TANK, DEVICE_UNIT]
 COMMANDS_MAP = {
     DEVICE_BOOTLOADER: DKBootloaderCommands,
     DEVICE_TANK: DKTankCommands,
-    DEVICE_UNIT: DKTankCommands,
+    DEVICE_UNIT: DKUnitCommands,
 }
 
 

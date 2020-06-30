@@ -1,6 +1,6 @@
-from .commands import DKGeneralCommands
+from .common import DKCommonCommands
 
 
-class DKTankCommands(DKGeneralCommands):
+class DKUnitCommands(DKCommonCommands):
     DEVICE_NAME = 'DK Unit'
 
