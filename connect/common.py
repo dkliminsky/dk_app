@@ -123,6 +123,7 @@ class DKCommonCommands(DKGeneralCommands):
         return data
 
     def write_sound_info(self, number: int, sound_id: int, size: int,):
+        print(number, sound_id, size)
         params = int16_to_bytes(number) + int16_to_bytes(sound_id) + int32_to_bytes(size)
         self.connect.exchange(self.COMMAND_WRITE_SOUND_INFO, params)
 

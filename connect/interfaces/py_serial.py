@@ -21,6 +21,9 @@ class PySerial:
 
         return ports_info
 
+    def set_timeout(self, timeout: float):
+        self.serial.timeout = timeout
+
     def connect(self, port_obj, timeout):
         logging.info('Connecting to port: {}'.format(port_obj.usb_info()))
         try:

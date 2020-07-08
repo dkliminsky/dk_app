@@ -52,6 +52,7 @@ class DKConnect:
 
         self._is_connect = False
         self._device_name = None
+        self._default_timeout = 1
 
     def is_connect(self):
         return self._is_connect
@@ -65,7 +66,7 @@ class DKConnect:
             if not (port.vid == self.DK_VID and port.pid == self.DK_PID):
                 continue
 
-            if not self.serial.connect(port.port_obj, 0.1):
+            if not self.serial.connect(port.port_obj, self._default_timeout):
                 logging.info('Connecting error, vid({}), pid({})'.format(port.vid, port.pid))
                 continue
 
@@ -146,9 +147,12 @@ class DKConnect:
 
             time.sleep(0.1)
 
-    def exchange(self, command: int, data: Union[bytes, None] = None, retry=0, is_silent=False):
+    def exchange(self, command: int, data: Union[bytes, None] = None, retry=0, is_silent=False, timeout=None):
         if not self.is_connect():
             raise DKConnectDisconnectedError
+
+        # if timeout:
+        #     self.serial.set_timeout(timeout)
 
         tries = 0
         receive_command, receive_data = None, None
@@ -170,6 +174,9 @@ class DKConnect:
                 continue
 
             break
+
+        # if timeout:
+        #     self.serial.set_timeout(self._default_timeout)
 
         if receive_command == self.COMMAND_ERROR:
             logging.warning("Received error: {}".format(bytes_to_uint(receive_data)))
