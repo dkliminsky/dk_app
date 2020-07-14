@@ -65,7 +65,7 @@ class DKCommonCommands(DKGeneralCommands):
 
     def get_hardware_version(self) -> (int, int, int, int):
         data = self.connect.exchange(self.COMMAND_GET_HARDWARE_VERSION, None)
-        return data[0], data[1], bytes_to_uint(data[2:4])
+        return bytes_to_uint(data[0:2]), bytes_to_uint(data[2:4]), bytes_to_uint(data[4:6]), bytes_to_uint(data[6:8])
 
     def get_license_key(self) -> bytes:
         data = self.connect.exchange(self.COMMAND_GET_LICENSE_KEY, None)
@@ -164,8 +164,8 @@ class DKCommonCommands(DKGeneralCommands):
     def reset_sounds(self):
         self.connect.exchange(self.COMMAND_RESET_SOUNDS)
 
-    def write_hardware_version(self, major, minor, patch):
-        version = bytes([major, minor]) + int16_to_bytes(patch)
+    def write_hardware_version(self, product: int, major: int, minor: int, patch: int):
+        version = int16_to_bytes(product) + int16_to_bytes(major) + int16_to_bytes(minor) + int16_to_bytes(patch)
         data = self.connect.exchange(self.COMMAND_WRITE_HARDWARE_VERSION, version)
         return data
 
