@@ -4,3 +4,9 @@ __pycache__
 
 firmware.dkf
 dk_app.log
+
+venv
+build
+dist
+
+*.pyo
