@@ -1,4 +1,5 @@
 import os
+import time
 from typing import Union
 
 from .commands import DKGeneralCommands
@@ -32,12 +33,11 @@ class SoundInfo:
 
 class DKCommonCommands(DKGeneralCommands):
     # Info
-    COMMAND_GET_HARDWARE_VERSION = 10
-    COMMAND_GET_LICENSE_KEY = 11
-    COMMAND_GET_ACCESS_LEVEL = 12
-    COMMAND_GET_FREE_MEM = 13
-    COMMAND_GET_VOLTAGE_BATTERY = 14
-    COMMAND_GET_VOLTAGE_5V = 15
+    COMMAND_GET_LICENSE_KEY = 10
+    COMMAND_GET_ACCESS_LEVEL = 11
+    COMMAND_GET_FREE_MEM = 12
+    COMMAND_GET_VOLTAGE_BATTERY = 13
+    COMMAND_GET_VOLTAGE_5V = 14
 
     COMMAND_GET_PLAYER_PERFORMANCE = 20
 
@@ -62,10 +62,6 @@ class DKCommonCommands(DKGeneralCommands):
     COMMAND_JUMP_TO_STM_BOOTLOADER = 152
 
     COMMAND_START_TESTS = 170
-
-    def get_hardware_version(self) -> (int, int, int, int):
-        data = self.connect.exchange(self.COMMAND_GET_HARDWARE_VERSION, None)
-        return bytes_to_uint(data[0:2]), bytes_to_uint(data[2:4]), bytes_to_uint(data[4:6]), bytes_to_uint(data[6:8])
 
     def get_license_key(self) -> bytes:
         data = self.connect.exchange(self.COMMAND_GET_LICENSE_KEY, None)
@@ -125,7 +121,7 @@ class DKCommonCommands(DKGeneralCommands):
     def write_sound_info(self, number: int, sound_id: int, size: int,):
         print(number, sound_id, size)
         params = int16_to_bytes(number) + int16_to_bytes(sound_id) + int32_to_bytes(size)
-        self.connect.exchange(self.COMMAND_WRITE_SOUND_INFO, params)
+        self.connect.exchange(self.COMMAND_WRITE_SOUND_INFO, params, retry=3)
 
     def write_sound_file_part(self, number: int, pos: int, data: bytes):
         params = int16_to_bytes(number) + int32_to_bytes(pos) + data

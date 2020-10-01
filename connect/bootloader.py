@@ -40,7 +40,7 @@ class DKBootloaderCommands(DKGeneralCommands):
 
     def flash_erase(self) -> int:
         self.connect.send(self.COMMAND_ERASE, None)
-        data = self.connect.receive_wait()
+        _, data = self.connect.receive_wait()
         bad_blocks = bytes_to_uint(data)
         return bad_blocks
 

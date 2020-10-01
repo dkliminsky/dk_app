@@ -114,7 +114,7 @@ class DKConnect:
             self._is_connect = False
             raise DKConnectError
 
-    def receive(self):
+    def receive(self) -> (int, bytes):
         if not self.is_connect():
             raise DKConnectDisconnectedError
 
@@ -133,19 +133,19 @@ class DKConnect:
 
         return package_command, package_data
 
-    def receive_wait(self, timeout=30) -> bytes:
+    def receive_wait(self, timeout=30.0) -> (int, bytes):
         start_time = time.time()
         while True:
             try:
                 receive_command, receive_data = self.receive()
-                return receive_data
+                return receive_command, receive_data
             except DKConnectResponseTimoutError:
                 pass
 
             if time.time() - start_time > timeout:
                 raise DKConnectResponseTimoutError
 
-            time.sleep(0.1)
+            time.sleep(0.01)
 
     def exchange(self, command: int, data: Union[bytes, None] = None, retry=0, is_silent=False, timeout=None):
         if not self.is_connect():
@@ -169,6 +169,7 @@ class DKConnect:
             try:
                 self.send(command, data)
                 receive_command, receive_data = self.receive()
+                # receive_command, receive_data = self.receive_wait(0.2)
             except DKConnectError as exc:
                 exchange_exception = exc
                 continue
