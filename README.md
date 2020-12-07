@@ -1,8 +1,26 @@
-# dk_app
+# DK App
 
 
 
 
+### Install on Windows
+
+$ python3 -m venv venv
+
+$ call venv\scripts\activate.bat
+
+$ pip3 install wheel pyserial
+
+$ pip3 install PySide2 PyInstaller
+
+or 
+
+$ pip3 install PyQt5 PyInstaller
+
+
+### Packaging
+
+$ pyinstaller dk_app_onefile.spec 
 
 
 ### Links

@@ -38,6 +38,7 @@ class DKCommonCommands(DKGeneralCommands):
     COMMAND_GET_FREE_MEM = 12
     COMMAND_GET_VOLTAGE_BATTERY = 13
     COMMAND_GET_VOLTAGE_5V = 14
+    COMMAND_GET_RC_RECEIVER_VALUE = 15
 
     COMMAND_GET_PLAYER_PERFORMANCE = 20
 
@@ -82,6 +83,11 @@ class DKCommonCommands(DKGeneralCommands):
     def get_voltage_5v(self) -> float:
         data = self.connect.exchange(self.COMMAND_GET_VOLTAGE_5V, None)
         return bytes_to_float(data)
+
+    def get_rc_receiver_value(self, channel: int) -> int:
+        params = int8_to_bytes(channel)
+        data = self.connect.exchange(self.COMMAND_GET_RC_RECEIVER_VALUE, params)
+        return bytes_to_uint(data)
 
     def get_player_performance(self):
         data = self.connect.exchange(self.COMMAND_GET_PLAYER_PERFORMANCE, None)
