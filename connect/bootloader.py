@@ -38,6 +38,27 @@ class DKBootloaderCommands(DKGeneralCommands):
         self.connect.send(self.COMMAND_GO_TO_APP, None)
         self.connect.disconnect()
 
+    def flash_update(self, file_name: str):
+        print('Erasing flash...')
+        self.flash_erase()
+
+        print('Writing to flash...')
+        gen = self.flash_write_async(file_name)
+
+        try:
+            while True:
+                percent = next(gen)
+                print(percent)
+        except StopIteration:
+            pass
+
+        logging.info('Checking flash...')
+
+        if self.flash_check(file_name):
+            print('Firmware updated successfully.')
+        else:
+            print('ERROR! Firmware checksum mismatch!')
+
     def flash_erase(self) -> int:
         self.connect.send(self.COMMAND_ERASE, None)
         _, data = self.connect.receive_wait()
@@ -71,7 +92,6 @@ class DKBootloaderCommands(DKGeneralCommands):
                 curr_pos += len(block)
                 percent = int(curr_pos/file_size*100)
                 if percent != prev_percent:
-                    print("{}%".format(percent))
                     prev_percent = percent
                     yield percent
 

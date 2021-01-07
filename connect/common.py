@@ -61,6 +61,8 @@ class DKCommonCommands(DKGeneralCommands):
     COMMAND_WRITE_HARDWARE_VERSION = 150
     COMMAND_READ_FLASH = 151
     COMMAND_JUMP_TO_STM_BOOTLOADER = 152
+    COMMAND_GET_RDP_LEVEL = 153
+    COMMAND_SET_RDP_LEVEL = 154
 
     COMMAND_START_TESTS = 170
 
@@ -179,6 +181,14 @@ class DKCommonCommands(DKGeneralCommands):
     def jump_to_stm_bootloader(self):
         self.connect.send(self.COMMAND_JUMP_TO_STM_BOOTLOADER, None)
         self.connect.disconnect()
+
+    def get_rdp_level(self) -> int:
+        data = self.connect.exchange(self.COMMAND_GET_RDP_LEVEL)
+        return bytes_to_uint(data)
+
+    def set_rdp_level(self, level: int):
+        params = int8_to_bytes(level)
+        self.connect.exchange(self.COMMAND_SET_RDP_LEVEL, params)
 
     def start_tests(self):
         self.connect.exchange(self.COMMAND_START_TESTS)
